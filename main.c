@@ -4,13 +4,15 @@
 #include <string.h>
 #include <unistd.h>
 
+#define BUFFER_SIZE 4096
+
 int
 copy(int old_fd, int new_fd) {
   /* I understand 1024 bytes isn't always enough,
      this is just an arbitrary number. I'll try
      to fix it later.
    */
-  char buffer[4096];
+  char buffer[BUFFER_SIZE];
   int  bytes_read = read(old_fd, buffer, sizeof(buffer));
 
   write(new_fd, buffer, bytes_read);
