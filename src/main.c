@@ -16,8 +16,9 @@ main(int argc, char** argv) {
     char* dest_name = argv[2];
     bool dest_is_dir = is_dir(argv[2]); 
 
-    if(is_dir) {
-      strcat(dest_name, "/");
+    if(dest_is_dir) {
+      if(dest_name[strlen(dest_name)-1] != '/') /* This is to prevent undefined behavior */
+        strcat(dest_name, "/");
       strcat(dest_name, argv[1]);
       dest = open(dest_name, O_WRONLY | O_CREAT, 0644);
     } else {
