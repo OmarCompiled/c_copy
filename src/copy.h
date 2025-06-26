@@ -12,12 +12,12 @@ copy(int old_fd, int dest) {
   char buffer[BUFFER_SIZE];
   int  bytes_read = read(old_fd, buffer, sizeof(buffer));
 
-  write(new_fd, buffer, bytes_read);
+  write(dest, buffer, bytes_read);
   
   return bytes_read;
 }
 
-void
+/*void
 multi_copy(int old_fds[], int dest) {
   int old_fds_length = sizeof(old_fds) / sizeof(old_fds[0]);
 
@@ -25,6 +25,6 @@ multi_copy(int old_fds[], int dest) {
   for(i = 0; i < old_fds_length; i++) {
     copy(old_fds[i], dest);
   }
-}
+}*/
 
 #endif

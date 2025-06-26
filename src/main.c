@@ -5,6 +5,7 @@
 #include <unistd.h>
 
 #include "copy.h"
+#include "type_check.h"
 
 int
 main(int argc, char** argv) {
@@ -13,16 +14,14 @@ main(int argc, char** argv) {
     int dest;
     
     char* dest_name = argv[2];
-    bool is_dir = (argv[2][strlen(argv[2])-1] == '/');
+    bool dest_is_dir = is_dir(argv[2]); 
 
     if(is_dir) {
-      strcat(new_file_name, argv[1]);
-      new_file = open(dest_name, O_WRONLY | O_CREAT, 0644);
-    } else if(!strcmp(argv[1], "*") && is_dir) {
-      int fds[] = get_dirents();
-      multi_copy(fds, dest_name);
+      strcat(dest_name, "/");
+      strcat(dest_name, argv[1]);
+      dest = open(dest_name, O_WRONLY | O_CREAT, 0644);
     } else {
-      new_file = open(argv[2], O_WRONLY | O_CREAT, 0644);
+      dest = open(argv[2], O_WRONLY | O_CREAT, 0644);
     }
 
     if(old_file == -1) {
