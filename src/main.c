@@ -19,7 +19,7 @@ main(int argc, char** argv) {
 
 		int i;
 		for(i = 1; i < argc - 1; i++) {
-			char updated_dest_name[MAX_FILE_NAME_SIZE] = "";
+			char updated_dest_name[MAX_FILE_NAME_SIZE] = ""; /* sizing is necessary here, otherwise it'll be immutable & 1 byte */
 			bool dest_is_dir = is_dir(dest_name);
 
 			old_file = open(argv[i], O_RDONLY);
@@ -42,7 +42,6 @@ main(int argc, char** argv) {
 			dest = open(updated_dest_name, O_WRONLY | O_CREAT, 0644);
 
 			copy(old_file, dest);
-			printf("copied %s to %s\n",argv[i], updated_dest_name);
 
 			close(old_file);
 			close(dest);
