@@ -1,24 +1,30 @@
+#include <dirent.h>
 #include <fcntl.h>
 #include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <unistd.h>
 
-#include "copy.h"
-#include "type_check.h"
+bool
+is_dir(const char* dest_name) {
+  DIR* dir;
+  if((dir = opendir(dest_name)) != NULL) {
+		closedir(dir);
+    return true;
+	}
 
-int
-main(int argc, char** argv) {
-	if(argc >= 3) {
-		int old_file;
-		int dest;
-	
-		int i;
-		for(i = 1; i < argc - 1; i++) {
-			 char* dest_name = argv[argc-1];
-			 bool dest_is_dir = is_dir(dest_name);
+  return false;
+}
 
-			 old_file = open(argv[i], O_RDONLY);
+bool
+is_existing_file(const char* file_name) {
+  FILE* file;
+  if((file = fopen(file_name, O_RDONLY)) != NULL){
+		fclose(file);
+    return true;
+	}
+
+  return false;
+}
+
+RDONLY);
 
 			 if(dest_is_dir) {
 				if(dest_name[strlen(dest_name)-1] != '/') /* This is to prevent undefined behavior */
