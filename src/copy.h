@@ -2,6 +2,9 @@
 #define COPY_H
 
 int
-copy(int old_fd, int dest);
+copy(const char* src, const char* dest_name);
+
+void
+copy_multiple_files(const int argc, char** argv, const char* dest_name);
 
 #endif
