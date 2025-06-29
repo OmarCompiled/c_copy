@@ -7,35 +7,15 @@
 #include "copy.h"
 #include "type_check.h"
 
+
 int
 main(int argc, char** argv) {
-	if(argc == 3) {
-		int old_file = open(argv[1], O_RDONLY);
-		int dest;
+	const char* dest_name = argv[argc-1];
 
-		char* dest_name = argv[2];
-		bool dest_is_dir = is_dir(argv[2]); 
-
-		if(dest_is_dir) {
-			if(dest_name[strlen(dest_name)-1] != '/') /* This is to prevent undefined behavior */
-				strcat(dest_name, "/");
-
-			strcat(dest_name, argv[1]);
-			dest = open(dest_name, O_WRONLY | O_CREAT, 0644);
-		} else {
-			dest = open(argv[2], O_WRONLY | O_CREAT, 0644);
-		}
-
-		if(old_file == -1) {
-			printf("file not found: %s\n", argv[1]);
-
-			exit(EXIT_SUCCESS);
-		}
-
-		copy(old_file, dest);
-
-		close(old_file);
-		close(dest);
+	if(argc >= 3 && is_dir(dest_name)) {
+		copy_multiple_files(argc, argv, dest_name);
+	} else if(argc == 3) {
+		copy(argv[1], dest_name);
 	} else if(argc == 2 && !strcmp(argv[1], "-help")) {
 		printf("copy [SOURCE] [DEST]\n\n"
 				"to display this msg:\n"
