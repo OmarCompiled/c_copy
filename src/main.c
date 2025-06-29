@@ -21,6 +21,9 @@ main(int argc, char** argv) {
 		for(i = 1; i < argc - 1; i++) {
 			char updated_dest_name[MAX_FILE_NAME_SIZE] = ""; /* sizing is necessary here, otherwise it'll be immutable & 1 byte */
 			bool dest_is_dir = is_dir(dest_name);
+			
+			if(is_dir(argv[i]))
+				continue;
 
 			old_file = open(argv[i], O_RDONLY);
 			 
