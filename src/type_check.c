@@ -2,7 +2,7 @@
 #include <fcntl.h>
 #include <stdio.h>
 
-unsigned int
+short int
 is_dir(const char* dest_name) {
   DIR* dir;
   if((dir = opendir(dest_name)) != NULL) {
@@ -13,7 +13,7 @@ is_dir(const char* dest_name) {
   return 0;
 }
 
-unsigned int
+short int
 is_existing_file(const char* file_name) {
   FILE* file;
   if((file = fopen(file_name, O_RDONLY)) != NULL){
