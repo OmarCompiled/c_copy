@@ -24,9 +24,9 @@ copy(const char* src, const char* dest_name) {
 	dest = open(dest_name, O_WRONLY | O_CREAT, 0644);
 	
 	if(source == -1) {
-		printf("file not found: %s\n", src);
+			printf("file not found: %s\n", src);
 
-		exit(EXIT_FAILURE);
+			exit(EXIT_FAILURE);
 	}
 
 	bytes_read = read(source, buffer, sizeof(buffer));
@@ -46,11 +46,11 @@ copy_multiple_files(const int argc, char** argv, const char* dest_name) {
 		char updated_dest_name[MAX_FILE_NAME_SIZE] = "";
 			
 		if(is_dir(argv[i]))
-			continue;
+				continue;
 			 
 		strcat(updated_dest_name, dest_name);
 		if(dest_name[strlen(dest_name)-1] != '/') { /* This is to prevent undefined behavior */
-			strcat(updated_dest_name, "/");
+				strcat(updated_dest_name, "/");
 		}
 
 		strcat(updated_dest_name, argv[i]);
