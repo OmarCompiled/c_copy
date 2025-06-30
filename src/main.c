@@ -7,7 +7,6 @@
 #include "copy.h"
 #include "type_check.h"
 
-
 int
 main(int argc, char** argv) {
 	const char* dest_name = argv[argc-1];
