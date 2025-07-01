@@ -11,40 +11,56 @@
      to fix it later.
 */
 #define BUFFER_SIZE 4096 /*4 Kib*/
-#define MAX_FILE_NAME_SIZE 100
 
 int
 copy(const char* src, const char* dest_name) {
 	char buffer[BUFFER_SIZE];
 	int bytes_read;
 	int source;
-	int dest;
-
-	source = open(src, O_RDONLY);
-	dest = open(dest_name, O_WRONLY | O_CREAT, 0644);
+	int dest;	
 	
-	if(source == -1) {
-			printf("file not found: %s\n", src);
+	if((source = open(src, O_RDONLY)) < 0) {
+			printf("error: file not found: %s\n", src);
 
-			exit(EXIT_FAILURE);
+			return -1;
 	}
 
-	bytes_read = read(source, buffer, sizeof(buffer));
+	if((dest = open(dest_name, O_WRONLY | O_CREAT, 0644)) < 0) {
+			printf("error: could not create file: %s\n", dest_name);
+		
+			return -1;	
+	}
 
-	write(dest, buffer, bytes_read);
+	if((bytes_read = read(source, buffer, sizeof(buffer))) < 0) {
+			printf("error: could not copy file: %s\n", dest_name);
+
+			return -1;
+	}
+
+	if(write(dest, buffer, bytes_read) < 0) {
+			printf("error: could not write to file: %s\n", dest_name);
+
+			return -1;
+	}
 		
 	close(source);
 	close(dest);
   
-	return bytes_read;
+	return 0;
 }
 
 void
 copy_multiple_files(const int argc, char** argv, const char* dest_name) {
+	int multiplier = strlen(dest_name) * 4;
+
 	int i;
 	for(i = 1; i < argc - 1; i++) {
-		char updated_dest_name[MAX_FILE_NAME_SIZE] = "";
-			
+		char* updated_dest_name = (char*)malloc(sizeof(char) * multiplier);
+		
+		/* I have to initialize space since malloc 
+			 just allocates and doesn't initialize */
+		*updated_dest_name = '\0';
+
 		if(is_dir(argv[i]))
 				continue;
 			 
@@ -55,6 +71,10 @@ copy_multiple_files(const int argc, char** argv, const char* dest_name) {
 
 		strcat(updated_dest_name, argv[i]);
 
-		copy(argv[i], updated_dest_name);
+		if(copy(argv[i], updated_dest_name) < 0) {
+				printf("error: could not copy file: %s\n", argv[i]);	
+		}
+
+		free(updated_dest_name);
 	}
 }

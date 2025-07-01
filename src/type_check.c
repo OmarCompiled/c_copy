@@ -18,7 +18,7 @@ is_existing_file(const char* file_name) {
   FILE* file;
   if((file = fopen(file_name, O_RDONLY)) != NULL){
 			fclose(file);
-    	return 1;
+			return 1;
 	}
 
   return 0;
