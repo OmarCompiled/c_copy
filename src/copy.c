@@ -72,7 +72,9 @@ copy_multiple_files(const int argc, char** argv, const char* dest_name) {
 		strcat(updated_dest_name, argv[i]);
 
 		if(copy(argv[i], updated_dest_name) < 0) {
-				printf("error: could not copy file: %s\n", argv[i]);	
+				printf("error: could not copy file: %s\n", argv[i]);
+
+				return;	
 		}
 
 		free(updated_dest_name);
