@@ -1,3 +1,4 @@
+#include <errno.h>
 #include <fcntl.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -12,12 +13,12 @@ main(int argc, char** argv) {
 	const char* dest_name = argv[argc-1];
 
 	if(argc >= 3 && is_dir(dest_name)) {
-			if(copy_multiple_files(argc, argv, dest_name) < 0) {
+			if((copy_multiple_files(argc, argv, dest_name)) < 0) {
 					exit(EXIT_FAILURE);
 			}
 	} else if(argc == 3) {
-			if(copy(argv[1], dest_name) < 0) {
-				exit(EXIT_FAILURE);
+			if(copy(argv[1], dest_name) != 0) {
+					exit(EXIT_FAILURE);
 			}
 	} else if(argc == 2 && !strcmp(argv[1], "-help")) {
 			printf("copy [SOURCE] [DEST]\n\n"

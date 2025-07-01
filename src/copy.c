@@ -18,7 +18,9 @@ copy(const char* src, const char* dest_name) {
 	int bytes_read;
 	int source;
 	int dest;	
-	
+
+	/* Since most -if not all- return -1 on failure, 
+	   that's what I'll test for. Perhaps I'll change this to errno later on.*/	
 	if((source = open(src, O_RDONLY)) < 0) {
 			printf("error: file not found: %s\n", src);
 
@@ -43,8 +45,10 @@ copy(const char* src, const char* dest_name) {
 			return -1;
 	}
 		
-	close(source);
-	close(dest);
+	if(close(source) < 0 || close(dest) < 0) {
+			/* Not sure what to print */
+			return -1;
+	}
   
 	return 0;
 }
@@ -78,7 +82,7 @@ copy_multiple_files(const int argc, char** argv, const char* dest_name) {
 		}
 
 		free(updated_dest_name);
-
-		return 0;
 	}
+
+	return 0;
 }
