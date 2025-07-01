@@ -1,3 +1,4 @@
+#include <errno.h>
 #include <fcntl.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -22,31 +23,32 @@ copy(const char* src, const char* dest_name) {
 	/* Since most -if not all- return -1 on failure, 
 	   that's what I'll test for. Perhaps I'll change this to errno later on.*/	
 	if((source = open(src, O_RDONLY)) < 0) {
-			printf("error: file not found: %s\n", src);
+			fprintf(stderr, "error copying file %s: %s\n", src, strerror(errno));
 
 			return -1;
 	}
 
 	if((dest = open(dest_name, O_WRONLY | O_CREAT, 0644)) < 0) {
-			printf("error: could not create file: %s\n", dest_name);
+			perror(NULL);
 		
 			return -1;	
 	}
 
 	if((bytes_read = read(source, buffer, sizeof(buffer))) < 0) {
-			printf("error: could not copy file: %s\n", dest_name);
+			fprintf(stderr, "error reading file %s: %s\n", src, strerror(errno));
 
 			return -1;
 	}
 
 	if(write(dest, buffer, bytes_read) < 0) {
-			printf("error: could not write to file: %s\n", dest_name);
+			perror(NULL);	
 
 			return -1;
 	}
 		
 	if(close(source) < 0 || close(dest) < 0) {
 			/* Not sure what to print */
+			perror(NULL);
 			return -1;
 	}
   
@@ -55,7 +57,7 @@ copy(const char* src, const char* dest_name) {
 
 int
 copy_multiple_files(const int argc, char** argv, const char* dest_name) {
-	int multiplier = strlen(dest_name) * 4;
+	int multiplier = strlen(dest_name) * 100;
 
 	int i;
 	for(i = 1; i < argc - 1; i++) {
@@ -76,8 +78,7 @@ copy_multiple_files(const int argc, char** argv, const char* dest_name) {
 		strcat(updated_dest_name, argv[i]);
 
 		if(copy(argv[i], updated_dest_name) < 0) {
-				printf("error: could not copy file: %s\n", argv[i]);
-
+				/* error messages from copy() are enough, just returning */
 				return -1;	
 		}
 
