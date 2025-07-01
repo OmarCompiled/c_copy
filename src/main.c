@@ -12,9 +12,13 @@ main(int argc, char** argv) {
 	const char* dest_name = argv[argc-1];
 
 	if(argc >= 3 && is_dir(dest_name)) {
-			copy_multiple_files(argc, argv, dest_name);
+			if(copy_multiple_files(argc, argv, dest_name) < 0) {
+					exit(EXIT_FAILURE);
+			}
 	} else if(argc == 3) {
-			copy(argv[1], dest_name);
+			if(copy(argv[1], dest_name) < 0) {
+				exit(EXIT_FAILURE);
+			}
 	} else if(argc == 2 && !strcmp(argv[1], "-help")) {
 			printf("copy [SOURCE] [DEST]\n\n"
 					"to display this msg:\n"

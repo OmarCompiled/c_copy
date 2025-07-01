@@ -49,7 +49,7 @@ copy(const char* src, const char* dest_name) {
 	return 0;
 }
 
-void
+int
 copy_multiple_files(const int argc, char** argv, const char* dest_name) {
 	int multiplier = strlen(dest_name) * 4;
 
@@ -74,9 +74,11 @@ copy_multiple_files(const int argc, char** argv, const char* dest_name) {
 		if(copy(argv[i], updated_dest_name) < 0) {
 				printf("error: could not copy file: %s\n", argv[i]);
 
-				return;	
+				return -1;	
 		}
 
 		free(updated_dest_name);
+
+		return 0;
 	}
 }
