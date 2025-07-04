@@ -11,4 +11,4 @@ clean: copy
 	rm ./copy
 
 delete:
-	sudo rm usr/bin/copy
+	sudo rm /usr/bin/copy
