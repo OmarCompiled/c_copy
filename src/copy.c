@@ -1,19 +1,90 @@
+#include <dirent.h>
+#include <errno.h>
 #include <fcntl.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 #include <unistd.h>
 
-#define BUFFER_SIZE 4096 /*4 Kib*/
+#include "type_check.h"
 
-int
-copy(int old_fd, int dest) {
-  /* I understand 4096 bytes isn't always enough,
-     this is just an arbitrary number. I'll try
-     to fix it later.
-   */
-	char buffer[BUFFER_SIZE];
-	int  bytes_read = read(old_fd, buffer, sizeof(buffer));
+int copy(const char *src, const char *dest_name) {
+	int bytes_read;
+  int source;
+  int dest;
+	char buffer;
 
-	write(dest, buffer, bytes_read);
-  
-	return bytes_read;
+  /* Since most -if not all- return -1 on failure,
+     that's what I'll test for. Perhaps I'll change this to errno later on.*/
+  if ((source = open(src, O_RDONLY | O_APPEND)) < 0) {
+    fprintf(stderr, "error copying file %s: %s\n", src, strerror(errno));
+
+    return -1;
+  }
+
+  if ((dest = open(dest_name, O_WRONLY | O_CREAT, 0644)) < 0) {
+    perror("open");
+
+    return -1;
+  }
+
+  while((bytes_read = read(source, &buffer, 1)) && bytes_read != 0) {
+		if(bytes_read < 0) {
+			perror("read");
+
+			return -1;
+		}
+
+		if(write(dest, &buffer, 1) < 0) {
+			perror("write");
+
+			return -1;
+		}
+	}
+
+  if (close(source) < 0 || close(dest) < 0) {
+    /* Not sure what to print */
+    perror("close");
+
+    return -1;
+  }
+
+  return 0;
 }
 
+int copy_multiple_files(const int argc, char **argv, const char *dest_name) {
+  int multiplier = strlen(dest_name) * 100;
+
+  int i;
+  for (i = 1; i < argc - 1; i++) {
+    char *updated_dest_name = (char *)malloc(sizeof(char) * multiplier);
+
+    /* I have to initialize space since malloc
+             just allocates and doesn't initialize */
+    *updated_dest_name = '\0';
+		
+		/* Realized I should fix copy, not this function :) */
+    if (is_dir(argv[i]) && is_dir(dest_name)) {
+      continue;
+    }
+
+    strcat(updated_dest_name, dest_name);
+    if (dest_name[strlen(dest_name) - 1] !=
+        '/') { /* This is to prevent undefined behavior */
+      strcat(updated_dest_name, "/");
+    }
+
+    strcat(updated_dest_name, argv[i]);
+
+    if (copy(argv[i], updated_dest_name) < 0) {
+      /* error messages from copy() are enough, just returning */
+			free(updated_dest_name); /* to prevent memory leak :) */
+
+      return -1;
+    }
+
+    free(updated_dest_name);
+  }
+
+  return 0;
+}

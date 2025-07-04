@@ -2,52 +2,33 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <unistd.h>
 
 #include "copy.h"
 #include "type_check.h"
 
-int
-main(int argc, char** argv) {
-	if(argc == 3) {
-		int old_file = open(argv[1], O_RDONLY);
-		int dest;
+int main(int argc, char **argv) {
+  const char *dest_name = argv[argc - 1];
 
-		char* dest_name = argv[2];
-		bool dest_is_dir = is_dir(argv[2]); 
+  if (argc >= 3 && is_dir(dest_name)) {
+    if ((copy_multiple_files(argc, argv, dest_name)) < 0) {
+      exit(EXIT_FAILURE);
+    }
+  } else if (argc == 3) {
+    if (copy(argv[1], dest_name) != 0) {
+      exit(EXIT_FAILURE);
+    }
+  } else if (argc == 2 && !strcmp(argv[1], "-help")) {
+    printf("copy [SOURCE] [DEST]\n\n"
+           "to display this msg:\n"
+           "copy -help\n");
 
-		if(dest_is_dir) {
-			if(dest_name[strlen(dest_name)-1] != '/') /* This is to prevent undefined behavior */
-				strcat(dest_name, "/");
+    exit(EXIT_SUCCESS);
+  } else {
+    printf("invalid command usage.\n"
+           "use -help to see correct usage\n");
 
-			strcat(dest_name, argv[1]);
-			dest = open(dest_name, O_WRONLY | O_CREAT, 0644);
-		} else {
-			dest = open(argv[2], O_WRONLY | O_CREAT, 0644);
-		}
+    exit(EXIT_FAILURE);
+  }
 
-		if(old_file == -1) {
-			printf("file not found: %s\n", argv[1]);
-
-			exit(EXIT_SUCCESS);
-		}
-
-		copy(old_file, dest);
-
-		close(old_file);
-		close(dest);
-	} else if(argc == 2 && !strcmp(argv[1], "-help")) {
-		printf("copy [SOURCE] [DEST]\n\n"
-				"to display this msg:\n"
-				"copy -help\n");
-
-		exit(EXIT_SUCCESS);
-	} else {
-		printf("invalid command usage.\n"
- 				"use -help to see correct usage\n");
-
-		exit(EXIT_FAILURE);
-	}
-
-	return 0;
+  return 0;
 }
