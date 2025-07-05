@@ -1,34 +1,15 @@
-#include <fcntl.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 
 #include "copy.h"
-#include "type_check.h"
+#include "utils.h"
 
-int main(int argc, char **argv) {
-  const char *dest_name = argv[argc - 1];
+int
+main(int argc, char** argv) {
+	if(argc == 3 && !is_dir(argv[1]))
+		if(copy(argv[1], argv[argc-1]) < 0) {
+			exit(EXIT_FAILURE);
+		}	
 
-  if (argc >= 3 && is_dir(dest_name)) {
-    if ((copy_multiple_files(argc, argv, dest_name)) < 0) {
-      exit(EXIT_FAILURE);
-    }
-  } else if (argc == 3) {
-    if (copy(argv[1], dest_name) != 0) {
-      exit(EXIT_FAILURE);
-    }
-  } else if (argc == 2 && !strcmp(argv[1], "-help")) {
-    printf("copy [SOURCE] [DEST]\n\n"
-           "to display this msg:\n"
-           "copy -help\n");
-
-    exit(EXIT_SUCCESS);
-  } else {
-    printf("invalid command usage.\n"
-           "use -help to see correct usage\n");
-
-    exit(EXIT_FAILURE);
-  }
-
-  return 0;
+	return 0;
 }

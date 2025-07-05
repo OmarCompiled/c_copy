@@ -1,4 +1,3 @@
-#include <dirent.h>
 #include <errno.h>
 #include <fcntl.h>
 #include <stdio.h>
@@ -6,85 +5,63 @@
 #include <string.h>
 #include <unistd.h>
 
-#include "type_check.h"
+#include "utils.h"
 
-int copy(const char *src, const char *dest_name) {
-	int bytes_read;
-  int source;
-  int dest;
+/* This function only copies file contents. my intention is to 
+  write another function that handles file paths : copy */
+int
+copy_content(const char* src_path, const char* dest_path) {
+	int source, destination, bytes_read;
 	char buffer;
 
-  /* Since most -if not all- return -1 on failure,
-     that's what I'll test for. Perhaps I'll change this to errno later on.*/
-  if ((source = open(src, O_RDONLY | O_APPEND)) < 0) {
-    fprintf(stderr, "error copying file %s: %s\n", src, strerror(errno));
+	if((source = open(src_path, O_RDONLY)) < 0) {
+		fprintf(stderr, "error opening file %s: %s\n", src_path, strerror(errno));
 
-    return -1;
-  }
+		return -1;
+	}
 
-  if ((dest = open(dest_name, O_WRONLY | O_CREAT, 0644)) < 0) {
-    perror("open");
+	if((destination = open(dest_path, O_WRONLY | O_CREAT, 0644)) < 0) {
+		perror("open");
 
-    return -1;
-  }
+		return -1;
+	}
 
-  while((bytes_read = read(source, &buffer, 1)) && bytes_read != 0) {
+	while((bytes_read = read(source, &buffer, 1)) && bytes_read != 0) {
 		if(bytes_read < 0) {
 			perror("read");
 
 			return -1;
 		}
 
-		if(write(dest, &buffer, 1) < 0) {
+		if(write(destination, &buffer, 1) < 0) {
 			perror("write");
 
 			return -1;
 		}
 	}
 
-  if (close(source) < 0 || close(dest) < 0) {
-    /* Not sure what to print */
-    perror("close");
-
-    return -1;
-  }
-
-  return 0;
+	return 0;
 }
 
-int copy_multiple_files(const int argc, char **argv, const char *dest_name) {
-  int multiplier = strlen(dest_name) * 100;
+/* This function should handle the paths, and 
+ internally use copy_content after correcting paths */
+int
+copy(const char* old_src_path, const char* old_dest_path) {
+	char* new_dest_path = (char*)malloc(sizeof(char) * strlen(old_dest_path) * 10);
+	*new_dest_path = '\0';
 
-  int i;
-  for (i = 1; i < argc - 1; i++) {
-    char *updated_dest_name = (char *)malloc(sizeof(char) * multiplier);
+	if(is_dir(old_dest_path)) {
+		strcat(new_dest_path, old_dest_path);
+		if(old_dest_path[strlen(old_dest_path)-1] != '/') {
+			strcat(new_dest_path, "/");
+		}
 
-    /* I have to initialize space since malloc
-             just allocates and doesn't initialize */
-    *updated_dest_name = '\0';
-		
-		/* Realized I should fix copy, not this function :) */
-    if (is_dir(argv[i]) && is_dir(dest_name)) {
-      continue;
-    }
+		strcat(new_dest_path, old_src_path);
 
-    strcat(updated_dest_name, dest_name);
-    if (dest_name[strlen(dest_name) - 1] !=
-        '/') { /* This is to prevent undefined behavior */
-      strcat(updated_dest_name, "/");
-    }
+		if(copy_content(old_src_path, new_dest_path) < 0) {
+			return -1;
+		}
+	}
 
-    strcat(updated_dest_name, argv[i]);
-
-    if (copy(argv[i], updated_dest_name) < 0) {
-      /* error messages from copy() are enough, just returning */
-			free(updated_dest_name); /* to prevent memory leak :) */
-
-      return -1;
-    }
-
-    free(updated_dest_name);
-  }
-
-  return 0;
+	return 0;
 }

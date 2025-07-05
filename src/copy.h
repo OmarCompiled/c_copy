@@ -2,9 +2,9 @@
 #define COPY_H
 
 int
-copy(const char* src, const char* dest_name);
+copy_content(const char* src_path, const char* dest_path);
 
 int
-copy_multiple_files(const int argc, char** argv, const char* dest_name);
+copy(const char* old_src_path, const char* old_dest_path);
 
 #endif
