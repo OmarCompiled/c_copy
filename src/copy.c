@@ -1,5 +1,6 @@
 #include <errno.h>
 #include <fcntl.h>
+#include <limits.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -47,21 +48,32 @@ copy_content(const char* src_path, const char* dest_path) {
  internally use copy_content after correcting paths */
 int
 copy(const char* old_src_path, const char* old_dest_path) {
-	char* new_dest_path = (char*)malloc(sizeof(char) * strlen(old_dest_path) * 10);
-	*new_dest_path = '\0';
+	char* new_src_path;
+	char* new_dest_path;
+	if((new_src_path = realpath(old_src_path, NULL)) == NULL) {
+		perror("error");
+		free(new_src_path);	
 
-	if(is_dir(old_dest_path)) {
-		strcat(new_dest_path, old_dest_path);
-		if(old_dest_path[strlen(old_dest_path)-1] != '/') {
-			strcat(new_dest_path, "/");
-		}
-
-		strcat(new_dest_path, old_src_path);
-
-		if(copy_content(old_src_path, new_dest_path) < 0) {
-			return -1;
-		}
+		return -1;
 	}
+	if((new_dest_path = realpath(old_dest_path, NULL)) == NULL) {
+		perror("error");
+		free(new_dest_path);
+
+		return -1;
+	}
+
+
+
+	if(copy_content(new_src_path, new_dest_path) < 0) {
+		free(new_src_path);
+		free(new_dest_path);
+
+		return -1;
+	}
+	
+	free(new_src_path);
+	free(new_dest_path);
 
 	return 0;
 }

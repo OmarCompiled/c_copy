@@ -1,5 +1,5 @@
 CC=gcc
-CFLAGS=-Wall -std=c89
+CFLAGS=-Wall
 
 copy: main.c copy.c utils.c
 	${CC} ${CFLAGS} main.c copy.c utils.c -o copy
