@@ -21,7 +21,7 @@ copy_content(const char* src_path, const char* dest_path) {
 		return -1;
 	}
 
-	if((destination = open(dest_path, O_WRONLY | O_CREAT, 0644)) < 0) {
+	if((destination = open(dest_path, O_WRONLY | O_CREAT | O_TRUNC, 0644)) < 0) {
 		perror("open");
 
 		return -1;
@@ -51,7 +51,7 @@ copy_content(const char* src_path, const char* dest_path) {
 }
 
 /* This function should handle the paths, and 
- internally use copy_content after correcting paths */
+ internally use copy_content after resolving paths */
 int
 copy(const char* old_src_path, const char* old_dest_path) {
 	char* new_src_path;
@@ -66,10 +66,10 @@ copy(const char* old_src_path, const char* old_dest_path) {
 	if((new_dest_path = realpath(old_dest_path, NULL)) == NULL) {
 		fclose(fopen(old_dest_path, "a"));
 
-		realpath(old_dest_path, new_dest_path);
+		new_dest_path = realpath(old_dest_path, NULL);
 	}
 
-	printf("%s\n%s\n", new_src_path, new_dest_path);
+	printf("\033[34m[ from: %s ]\n[ to: %s ]\033[0m\n", new_src_path, new_dest_path);
 
 	if(copy_content(new_src_path, new_dest_path) < 0) {
 		return -1;
@@ -77,4 +77,3 @@ copy(const char* old_src_path, const char* old_dest_path) {
 
 	return 0;
 }
-
