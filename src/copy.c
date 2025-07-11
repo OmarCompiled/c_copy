@@ -41,6 +41,12 @@ copy_content(const char* src_path, const char* dest_path) {
 		}
 	}
 
+	if(close(source) < 0 || close(destination) < 0) {
+		perror("close");
+
+		return -1;
+	}
+
 	return 0;
 }
 
@@ -50,30 +56,25 @@ int
 copy(const char* old_src_path, const char* old_dest_path) {
 	char* new_src_path;
 	char* new_dest_path;
+
 	if((new_src_path = realpath(old_src_path, NULL)) == NULL) {
-		perror("error");
-		free(new_src_path);	
+		fprintf(stderr, "error: src file %s does not exist\n", old_src_path);
 
 		return -1;
 	}
+
 	if((new_dest_path = realpath(old_dest_path, NULL)) == NULL) {
-		perror("error");
-		free(new_dest_path);
+		fclose(fopen(old_dest_path, "a"));
 
-		return -1;
+		realpath(old_dest_path, new_dest_path);
 	}
 
-
+	printf("%s\n%s\n", new_src_path, new_dest_path);
 
 	if(copy_content(new_src_path, new_dest_path) < 0) {
-		free(new_src_path);
-		free(new_dest_path);
-
 		return -1;
 	}
-	
-	free(new_src_path);
-	free(new_dest_path);
 
 	return 0;
 }
+
